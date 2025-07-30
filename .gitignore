@@ -1,20 +1,22 @@
-# Python virtual environment
+# Python virtual environments
 venv/
-.env
-.venv/
-*.pyc
-__pycache__/
+ven/      # Explicitly ignore the 'ven' folder if you have it
+.env      # Environment variables file
+*.pyc     # Python compiled files
+__pycache__/ # Python cache directories
 
-# IDE-specific files (e.g., VS Code)
-.vscode/
-.idea/
-
-# Streamlit specific (optional, but good practice for sensitive config)
-# .streamlit/
+# IDE-specific files
+.vscode/  # VS Code settings
+.idea/    # PyCharm/IntelliJ IDEA settings
 
 # Jupyter notebooks checkpoints
 .ipynb_checkpoints/
 
 # Operating System files
-.DS_Store
-Thumbs.db
+.DS_Store # macOS specific
+Thumbs.db # Windows specific
+
+# Streamlit specific (if you don't want to deploy this config)
+# For this project, you might want to INCLUDE .streamlit/ for folderWatchBlacklist
+# so if it has sensitive info or local-only configs, you would uncomment this:
+# .streamlit/
