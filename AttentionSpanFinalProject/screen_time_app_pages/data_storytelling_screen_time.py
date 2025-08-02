@@ -5,35 +5,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 # Import Graph modules as needed
 from AttentionSpanFinalProject.graph_modules import Graph1, Graph2, Graph3, Graph4, Graph5
+# Import the new common data loader
+from AttentionSpanFinalProject.graph_modules.data_loader import load_and_preprocess_data
 
-# Data loading - crucial for performance, ensure it's cached.
-# Assuming this is already done in main_screen_time_app.py's global scope,
-# or moved into a dedicated cached function like below:
-url1 = 'AttentionSpanFinalProject/data/data.csv'
-url2 = 'AttentionSpanFinalProject/data/screen_time.csv'
+# Remove old data URLs if they are not used elsewhere in this file directly
+# url1 = 'AttentionSpanFinalProject/data/data.csv'
+# url2 = 'AttentionSpanFinalProject/data/screen_time.csv'
 
-@st.cache_data
-def load_and_prep_data_for_graphs():
-    df1_raw = pd.read_csv(url1)
-    df2_raw = pd.read_csv(url2)
-
-    # Re-apply necessary categorical ordering for efficiency, if GraphX functions don't do it
-    screen_time_order = ['Less than 2', '2–4', '4–6', '6–8', '8-10', 'More than 10']
-    age_group_order = ['Below 18', '18–24', '25–34', '35–44', '45 and above']
-
-    df1_raw['Average Screen Time'] = pd.Categorical(df1_raw['Average Screen Time'], categories=screen_time_order, ordered=True)
-    df1_raw['Age Group'] = pd.Categorical(df1_raw['Age Group'], categories=age_group_order, ordered=True)
-
-    # You might also want to do any initial filtering/processing here that's common to all graphs
-    return df1_raw, df2_raw
-
-# Pass these to graph functions if they need them, or let graph functions load themselves (less efficient)
-# For now, GraphX.py files are loading them, but this cached function could pass them down.
-# fig2 = Graph2.makeGraph2() # These should be called inside show() to be re-run by Streamlit
-# fig3 = Graph3.makeGraph3()
-# fig4 = Graph4.makeGraph4()
-# fig5_1 = Graph5.makeGraph5_1()
-# fig5_2 = Graph5.makeGraph5_2()
+# Remove this cached function entirely, as it's replaced by data_loader.py
+# @st.cache_data
+# def load_and_prep_data_for_graphs():
+#     df1_raw = pd.read_csv(url1)
+#     df2_raw = pd.read_csv(url2)
+#     screen_time_order = ['Less than 2', '2–4', '4–6', '6–8', '8-10', 'More than 10']
+#     age_group_order = ['Below 18', '18–24', '25–34', '35–44', '45 and above']
+#     df1_raw['Average Screen Time'] = pd.Categorical(df1_raw['Average Screen Time'], categories=screen_time_order, ordered=True)
+#     df1_raw['Age Group'] = pd.Categorical(df1_raw['Age Group'], categories=age_group_order, ordered=True)
+#     return df1_raw, df2_raw
 
 
 def show():
@@ -59,10 +47,10 @@ def show():
         Select your preferences below to see the corresponding visualization.
         """)
 
-        purpose = st.radio('Select Purpose', ('Educational', 'Recreational', "Both"), key="ds_purpose_radio") # Unique key
-        time = st.radio("Select which days of the week", ("Weekdays", "Weekends", "Both"), key="ds_time_radio") # Unique key
+        purpose = st.radio('Select Purpose', ('Educational', 'Recreational', "Both"), key="ds_purpose_radio")
+        time = st.radio("Select which days of the week", ("Weekdays", "Weekends", "Both"), key="ds_time_radio")
 
-        if st.button("Generate Chart", key="ds_graph1_button"): # Unique key
+        if st.button("Generate Chart", key="ds_graph1_button"):
             if purpose == 'Educational' and time == 'Weekdays':
                 st.pyplot(Graph1.makeGraph1_1())
             elif purpose == 'Educational' and time == 'Weekends':
@@ -92,7 +80,7 @@ def show():
        This heatmap visualizes the distribution of respondents across different age groups and their reported average screen time.
        It helps us identify which age demographics spend how much time on screens.
        """)
-       fig2 = Graph2.makeGraph2() 
+       fig2 = Graph2.makeGraph2()
        st.plotly_chart(fig2, use_container_width=True)
        st.markdown("---")
        st.markdown("*Notice that 34 of the 18-24 year old respondents spend 6-8 hours on screens per day!😲*")
@@ -105,7 +93,7 @@ def show():
        Here, we compare the average attention span reported by individuals in the 'Below 18' age group (children) versus
        all adult age groups. This chart offers a direct comparison to see if there's a notable difference.
        """)
-       fig3 = Graph3.makeGraph3() 
+       fig3 = Graph3.makeGraph3()
        st.pyplot(fig3)
        st.markdown("---")
        st.markdown("*This survey shows that adults DO NOT have a higher attention span compared to children, which is the opposite from what is to be expected. Note the study sample was 200 in total.*")
