@@ -52,8 +52,7 @@ def show_about_me():
     st.markdown("- **Soft Skills**: Multilingual communication (Ukrainian, Russian, Polish, Spanish), problem-solving, teamwork")
 
     st.markdown("### Languages")
-    st.markdown("- Fluent in **Ukrainian, Polish, Russian, and Spanish**")
-    st.markdown("- Native English speaker")
+    st.markdown("- Fluent in **English, Ukrainian, Polish, Russian, and Spanish**")
 
     # Download Resume Button
     # Ensure this path is correct relative to the project root
