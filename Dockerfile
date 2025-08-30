@@ -13,11 +13,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements
-COPY requirements.txt .
+COPY requirements.lock .
 
 # Install pip + dependencies
 RUN pip install --no-cache-dir -U pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements.lock
 
 # Copy app code
 COPY . .
