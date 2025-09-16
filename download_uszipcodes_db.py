@@ -1,5 +1,5 @@
 # download_uszipcode_db.py
-from uszipcode import SearchEngine
+"""
 import os # Import os module to remove potentially problematic files
 
 # Define the expected database path
@@ -36,3 +36,5 @@ try:
 
 except Exception as e:
     print(f"An error occurred during database initialization: {e}")
+
+"""

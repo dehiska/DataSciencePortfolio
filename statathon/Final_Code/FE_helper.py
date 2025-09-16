@@ -3,9 +3,12 @@ import numpy as np
 import seaborn as sns
 import ast
 import holidays
-from uszipcode import SearchEngine
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
+import pgeocode
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
+
 
 def impute_missing_values(df, ignore_columns=None):
     """
@@ -118,66 +121,7 @@ def extract_datetime_features(df, date_col='claim_date', include_holidays=True):
     return df
 
 
-def process_zipcode_features(df, zip_col='zip_code', plot=False):
-    """
-    Looks up and processes ZIP code-level features for a given DataFrame.
 
-    Parameters:
-        df (pd.DataFrame): Input DataFrame with a ZIP code column.
-        zip_col (str): Name of the ZIP code column in the DataFrame.
-        plot (bool): If True, plots histogram of log population.
-
-    Returns:
-        pd.DataFrame: Processed ZIP code DataFrame with selected features.
-    """
-    search_zip = SearchEngine()
-    unique_zip = df[zip_col].unique()
-
-    zip_code_basic_features = ['zipcode', 'zipcode_type', 'state', 'population']
-    zip_code_lite = []
-
-    for zip_code in unique_zip:
-        zip_info = search_zip.by_zipcode(zip_code)
-        if zip_info is not None:
-            zip_dict = zip_info.to_dict()
-            zip_dict_lite = {key: zip_dict.get(key, np.nan) for key in zip_code_basic_features}
-            zip_code_lite.append(zip_dict_lite)
-
-    # Handle ZIP code 0 case explicitly
-    zero_dict_lite = {key: np.nan for key in zip_code_basic_features}
-    zero_dict_lite['zipcode'] = '00000'
-    zero_dict_lite['zipcode_type'] = 'UNIQUE'
-    zip_code_lite.append(zero_dict_lite)
-
-    zip_code_df = pd.DataFrame(zip_code_lite)
-    zip_code_df['zipcode'] = zip_code_df['zipcode'].astype(str).str.zfill(5)
-
-    # Compute log population
-    zip_code_df['log_population'] = np.log1p(zip_code_df['population'])
-
-    # Bin log population
-    zip_code_df['log_pop_bin'] = 0
-    bins = [0, 5, 10, np.inf]
-    labels = [1, 2, 3]
-    non_null_mask = zip_code_df['log_population'].notnull()
-
-    zip_code_df.loc[non_null_mask, 'log_pop_bin'] = pd.cut(
-        zip_code_df.loc[non_null_mask, 'log_population'],
-        bins=bins,
-        labels=labels,
-        right=False
-    ).astype(int)
-
-    # Optional histogram
-    if plot:
-        sns.histplot(zip_code_df['log_population'], bins=15)
-
-    zip_features = zip_code_df.drop(columns=['population', 'log_population'])
-
-    df = df.merge(zip_features, left_on='zip_code', right_on='zipcode', how='left')
-    df = df.drop(columns= ['zip_code', 'zipcode'])
-    # Clean up
-    return df
 
 def price_categories(df, col = 'vehicle_price', new_col_name = 'vehicle_price_categories'):
     df = df.copy()
@@ -195,32 +139,28 @@ def liab_prct_group(df, col = 'liab_prct', new_col_name = 'liab_prct_group'):
     df[new_col_name] = pd.cut(df[col], bins=bins, labels=labels, right=False)
     return(df)
 
-
-def add_features(df, age_cap_value=82, exclude_vars='witness_present_ind', include_holidays=True):
+#Replaced uszipcodes because of depricated packages
+def add_features(df):
     """
-    Runs the full preprocessing pipeline on the input dataframe.
-
-    Parameters:
-        df (pd.DataFrame): Input dataframe.
-        age_cap_value (int): Cap value for age_of_driver.
-        exclude_vars (list): List of columns to exclude from imputation (default: None).
-        include_holidays (bool): Whether to include holiday-based datetime features.
-
-    Returns:
-        pd.DataFrame: Fully processed dataframe.
+    Adds latitude and longitude features using pgeocode.
+    Ensures no NaN/mixed dtypes by coercing to float and filling missing values.
     """
-    df_processed = df.copy()
+    df = df.copy()
+    df['zip_code'] = df['zip_code'].astype(str).str.zfill(5)  # Force conversion
+    nomi = pgeocode.Nominatim('us')
+    location_data = nomi.query_postal_code(df['zip_code'].tolist())
 
-    df_processed = impute_missing_values(df_processed, exclude_vars)
-    df_processed = cleaning(df_processed)
-    df_processed = age_cap(df_processed, age_cap_value)
-    df_processed = assign_age_group(df_processed)
-    df_processed = extract_datetime_features(df_processed, include_holidays=include_holidays)
-    df_processed = process_zipcode_features(df_processed)
-    df_processed = price_categories(df_processed)
-    df_processed = liab_prct_group(df_processed) # This function was missing from the add_features call previously
+    # Coerce to numeric floats
+    df['latitude'] = pd.to_numeric(location_data['latitude'], errors='coerce')
+    df['longitude'] = pd.to_numeric(location_data['longitude'], errors='coerce')
 
-    return df_processed
+    # Fill NaNs with sentinel value or 0 (choose what makes sense for your model)
+    df['latitude'] = df['latitude'].fillna(0.0)
+    df['longitude'] = df['longitude'].fillna(0.0)
+
+    return df
+
+
 
 def drop_ignored_columns(df, ignore_var):
     """

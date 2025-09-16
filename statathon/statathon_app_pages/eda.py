@@ -7,12 +7,12 @@ from statathon.Final_Code.helper_fn import (
     plot_smoothed_fraud_rate_by_date,
     plot_fraud_rate_by_binned_continuous
 )
-from statathon.Final_Code.FE_helper import add_features
+from statathon.Final_Code.FE_helper import add_features, assign_age_group
 
 @st.cache_data
 def load_fe_data():
-    # Make sure these paths are correct based on your actual filenames (train.csv or train_2025.csv)
-    df = pd.read_csv("statathon/data/train_2025.csv") # Or "statathon/data/train.csv"
+    df = pd.read_csv("statathon/data/train_2025.csv")
+    df = assign_age_group(df, age_col='age_of_driver', new_col='age_group')
     return add_features(df)
 
 def show():

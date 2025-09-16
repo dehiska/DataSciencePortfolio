@@ -6,6 +6,7 @@ from statathon.Final_Code.FE_helper import add_features
 
 def load_and_process():
     train = pd.read_csv("statathon/data/train_2025.csv")
+    
     return add_features(train)
 
 def show():

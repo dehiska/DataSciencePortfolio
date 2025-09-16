@@ -7,14 +7,15 @@ from PIL import Image, ImageOps
 def show_about_me():
     # Title & Introduction
     st.title("👋 Hello, I'm Denis Soulima")
-    st.subheader("A Data Scientist | Computer Science Graduate | Future UConn Master's Candidate")
+    st.subheader("A Data Scientist | Future Data Science Graduate | Computer Science Graduate")
 
     col1, col2 = st.columns([3, 1])
 
     with col1:
         st.markdown("""
         Hi! I'm Denis — a passionate **data scientist** and **software developer** with hands-on experience in solving real-world problems through code and data.
-
+                    
+        - M.S. in **Data Science** from University of Connecticut
         - B.S. in **Computer Science** from Southern Connecticut State University
         - Minoring in **Mathematics** and **Data Science**
         - Currently preparing for my **Master's in Data Science at UConn Storrs**
