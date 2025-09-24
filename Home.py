@@ -17,7 +17,8 @@ Welcome to Denis Soulima's Data Science Portfolio!
 Use the navigation menu on the top-left to explore my different projects:
 - **Statathon Project:** Dive into my Fraud Detection solution.
 - **Screen Time Project:** Explore insights from a survey on screen time habits.
-- **House Prices in Seattle Project: Explore Seattle's real-estate market using housing and geospatial data.**""")
+- **House Prices in Seattle Project: Explore Seattle's real-estate market using housing and geospatial data.**
+- **Stock Prices Prediction Model**""")
             
 
             

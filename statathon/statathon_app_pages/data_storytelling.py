@@ -1,5 +1,3 @@
-# statathon/statathon_app_pages/data_storytelling.py
-
 import streamlit as st
 import pandas as pd
 # Assuming FE_helper is needed for load_and_transform
@@ -54,7 +52,8 @@ def show():
     Our feature importance analysis revealed the most influential factors in identifying fraudulent claims:
     """)
     # Display the Feature Importance image and its explanation
-    st.image("assets/feature_importance.png", caption="Top Feature Importances Driving Fraud Prediction", use_container_width=True)
+    # CHANGED: Replaced use_container_width with a fixed width
+    st.image("assets/feature_importance.png", caption="Top Feature Importances Driving Fraud Prediction", width=600)
     st.markdown("""
     As the chart illustrates, after importing and leveraging the rich geospatial data from the `uszipcode` package,
     we learned that the most important features are a person's **safety rating**, their **location at which they crashed (latitude and longitude)**,
@@ -76,7 +75,8 @@ def show():
     our model's performance across various thresholds, giving us a clearer understanding of its true discriminative power.
     """)
     # Display the ROC curve image
-    st.image("assets/ROC_curve.png", caption="Average ROC Curve from 5-Fold Cross-Validation", use_container_width=True)
+    # CHANGED: Replaced use_container_width with a fixed width
+    st.image("assets/ROC_curve.png", caption="Average ROC Curve from 5-Fold Cross-Validation", width=600)
 
     # --- Section: The Real-World Impact (Confusion Matrix) ---
     st.subheader("📉 Real-World Impact: Decoding the Confusion Matrix")
@@ -94,7 +94,8 @@ def show():
     In a business context like insurance fraud, **False Negatives (missed fraud)** are significantly more costly, potentially leading to losses of thousands of dollars per undetected fraudulent claim. Therefore, we made a strategic decision to tune our model (via the 0.17 threshold) to **prioritize recall**, even if it means accepting a slightly lower **precision** (more false positives). This ensures we catch as much actual fraud as possible, mitigating severe financial impact on the company.
     """)
     # Display the Confusion Matrix image
-    st.image("assets/Evaluation_matrix.png", caption="Confusion Matrix at Threshold 0.17", use_container_width=True)
+    # CHANGED: Replaced use_container_width with a fixed width
+    st.image("assets/Evaluation_matrix.png", caption="Confusion Matrix at Threshold 0.17", width=600)
 
     st.info("Remember to replace X, Y, Z, and W in the text above with the actual counts from your confusion matrix image.")
 

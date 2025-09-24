@@ -19,4 +19,4 @@ Thumbs.db # Windows specific
 # Streamlit specific (if you don't want to deploy this config)
 # For this project, you might want to INCLUDE .streamlit/ for folderWatchBlacklist
 # so if it has sensitive info or local-only configs, you would uncomment this:
-# .streamlit/
+.streamlit/secrets.toml

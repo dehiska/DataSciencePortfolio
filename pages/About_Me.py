@@ -1,71 +1,81 @@
-# statathon/statathon_app_pages/about_me.py (This file's correct content)
-
 import streamlit as st
-import pandas as pd
-from PIL import Image, ImageOps
+from PIL import Image
 
-def show_about_me():
-    # Title & Introduction
-    st.title("👋 Hello, I'm Denis Soulima")
-    st.subheader("A Data Scientist | Future Data Science Graduate | Computer Science Graduate")
+def show():
+    # --- PAGE CONFIG ---
+    st.set_page_config(page_title="About Me", page_icon="👋", layout="wide")
 
-    col1, col2 = st.columns([3, 1])
-
+    # --- HERO SECTION ---
+    col1, col2 = st.columns([2, 1])
     with col1:
-        st.markdown("""
-        Hi! I'm Denis — a passionate **data scientist** and **software developer** with hands-on experience in solving real-world problems through code and data.
-                    
-        - M.S. in **Data Science** from University of Connecticut
-        - B.S. in **Computer Science** from Southern Connecticut State University
-        - Minoring in **Mathematics** and **Data Science**
-        - Currently preparing for my **Master's in Data Science at UConn Storrs**
-
-        With professional experience at **IBM**, **VictoryWaves**, and **Geek Squad**, I've built robust systems, automated processes, and developed tools to improve efficiency and user experience.
-
-        I'm excited to apply my skills in machine learning, statistical analysis, and full-stack development to create value-driven solutions.
+        st.title("Denis Soulima")
+        st.subheader("Data Scientist with a Foundation in Computer Science")
+        st.write("""
+        Driven by a passion for uncovering insights from complex data, I am a Master's student in Data Science at the University of Connecticut. With a background in Computer Science and professional experience at companies like IBM, I bring a unique blend of software engineering discipline and advanced statistical knowledge to every project. I thrive on solving real-world challenges, from detecting financial fraud to developing robust data pipelines.
         """)
+        # Download Resume Button
+        with open("assets/resume.docx", "rb") as file:
+             st.download_button(
+                 label="📄 Download My Resume",
+                 data=file,
+                 file_name="DenisSoulima_Resume.docx",
+                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+             )
 
     with col2:
-        # Ensure this path is correct relative to the project root
-        img = Image.open("assets/profile_picture.jpg")
-        img = ImageOps.exif_transpose(img)
-        st.image(img, width=150)
+        profile_pic = Image.open("assets/profile_picture_fixed.jpg")
+        st.image(profile_pic, width=230, caption="Denis Soulima")
 
-    # Resume Section
+
     st.markdown("---")
-    st.markdown("## 📄 Resume Highlights")
 
-    st.markdown("### Education")
-    st.markdown("- **University of Connecticut** - *M.S. in Data Science (Finishing Spring 2026)*")
-    st.markdown("- **Southern Connecticut State University** – *B.S. in Computer Science*")
-    st.markdown("- **Norwalk Community College** – *A.S. in Mobile Programming*")
-    st.markdown("- **Ukrainian Catholic Diocese, Stamford** – *Diploma in Ukrainian Studies*")
+    # --- AWARDS & RECOGNITION ---
+    st.subheader("🏆 Awards & Recognition")
+    st.markdown("""
+    - **1st Place Winner, Yale Statathon 2024:** Led a team in a competitive challenge hosted by Yale University and Travelers Insurance to predict car insurance fraud. This project involved deep feature engineering, model development, and addressing severe class imbalance to maximize the F1 score.
+    """)
 
-    st.markdown("### Experience")
-    st.markdown("- **IBM Intern** – Cloud DevOps, CI/CD pipelines, cloud monitoring & security")
-    st.markdown("- **Geek Squad IT Specialist** – Technical support, hardware/software troubleshooting, customer training")
+    st.markdown("---")
 
-    st.markdown("### Skills")
-    st.markdown("- **Languages**: Python, Java, JavaScript, SQL, HTML/CSS, Haskell")
-    st.markdown("- **Tools**: Git, GitHub, Docker, AWS S3, GCP, Streamlit, Azure Databricks, Google Collab, NoSQL Workbench")
-    st.markdown("- **Data Science**: Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn")
-    st.markdown("- **Cloud**: IBM Cloud, CI/CD, DevOps best practices")
-    st.markdown("- **Soft Skills**: Multilingual communication (Ukrainian, Russian, Polish, Spanish), problem-solving, teamwork")
+    # --- SKILLS ---
+    st.subheader("🛠️ Technical Skills")
+    st.markdown("""
+    - **Programming:** Python (Pandas, NumPy, Scikit-learn), R, SQL, Java, JavaScript, Haskell
+    - **Big Data & Databases:** Databricks, Hadoop, Hive, PostgreSQL, NoSQL
+    - **Machine Learning:** Predictive Modeling, Classification, Regression, Clustering, Ensemble Methods, Fraud Detection
+    - **Cloud & DevOps:** AWS (S3), Azure, Google Cloud, Docker, CI/CD
+    - **Languages:** Fluent in English, Spanish, Ukrainian, Russian, and Polish.
+    """)
 
-    st.markdown("### Languages")
-    st.markdown("- Fluent in **English, Ukrainian, Polish, Russian, and Spanish**")
+    st.markdown("---")
 
-    # Download Resume Button
-    # Ensure this path is correct relative to the project root
-    with open("assets/resume.docx", "rb") as file:
-        st.download_button(
-            label="📄 Download Full Resume",
-            data=file,
-            file_name="resume.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            key="download_resume"
-        )
+    # --- EDUCATION ---
+    st.subheader("🎓 Education")
+    st.markdown("""
+    **University of Connecticut** | Master of Science in Data Science (Expected May 2026)
+    - *Relevant Coursework:* Machine Learning, Advanced Statistical Methods, Big Data Systems, Data Visualization, Statistical Computing.
 
+    **Southern Connecticut State University** | Bachelor of Science in Computer Science
+    - *Minors:* Mathematics, Mobile Programming, Data Science
+    """)
 
+    st.markdown("---")
+
+    # --- PROFESSIONAL EXPERIENCE ---
+    st.subheader("💼 Professional Experience")
+    st.markdown("""
+    **Data Engineer Intern | VictoryWaves**
+    - Performed ETL (Extract, Transform, Load) on large datasets using Databricks on Azure, NoSQL Workbench, and AWS S3.
+    - Contributed to developing and maintaining data pipelines, ensuring data quality and accessibility.
+
+    **Advanced Geeksquad Technician | Bestbuy**
+    - Diagnosed and repaired complex hardware and software issues for clients.
+    - Performed data recovery, OS installations, and provided technical training.
+
+    **Back-End Software Engineer Intern | IBM Cloud**
+    - Gained hands-on experience in cloud infrastructure and the software development lifecycle.
+    """)
+
+# This allows the page to be run directly for testing
 if __name__ == "__main__":
-    show_about_me()
+    show()
