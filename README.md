@@ -10,12 +10,10 @@ Gradient Boosted Trees using XGBoost. Trained on anonymized insurance claims dat
 - Deployed on Streamlit Cloud
 
 ## 🚀 Try It Out
-🔗 [Live App](https://your-streamlit-url.com)
+🔗 [Live App](https://denissoulimaportfolio.com)
 
 ## 🧰 Tech Stack
 - Python, Streamlit
 - Scikit-learn/XGBoost
 - Pandas, joblib
-- Docker (optional)
-
-## 📁 Repo Structure
+- Docker
