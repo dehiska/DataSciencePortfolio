@@ -37,7 +37,7 @@ echo ""
 echo "Building trainer package..."
 pip install --quiet setuptools wheel
 python setup.py sdist --dist-dir /tmp/trainer_dist -q 2>/dev/null
-PACKAGE_PATH=$(ls /tmp/trainer_dist/toxicity-trainer-*.tar.gz | tail -1)
+PACKAGE_PATH=$(ls /tmp/trainer_dist/toxicity*trainer-*.tar.gz | tail -1)
 echo "Package: $PACKAGE_PATH"
 
 gsutil cp "$PACKAGE_PATH" "gs://${BUCKET}/trainer/"
