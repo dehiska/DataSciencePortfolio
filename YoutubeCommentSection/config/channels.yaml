@@ -1,0 +1,93 @@
+# Curated YouTube channels for toxicity data collection.
+# Chosen for high comment volume and diversity of toxicity signals.
+# All channels verified against the API — public content, API Key auth only.
+
+channels:
+  # ── News / Politics — highest comment toxicity rates ─────────────
+  - id: UCupvZG-5ko_eiXAupbDfxWw
+    name: CNN
+    category: news
+
+  - id: UCXIJgqnII2ZOINSWNOGFThA
+    name: Fox News
+    category: news
+
+  - id: UC16niRr50-MSBwiO3YDb3RA
+    name: BBC News
+    category: news
+
+  - id: UCIALMKvObZNtJ6AmdCLP7Lg
+    name: MSNBC
+    category: news
+
+  - id: UCjr2bPAyPV7t35MvcgT3W8Q
+    name: The Hill
+    category: news
+
+  - id: UCydkRSMAGERS_k3vd53JFMQ
+    name: The Young Turks
+    category: news
+
+  - id: UCeY0bbntWzzVIaj2z3QigXg
+    name: NBC News
+    category: news
+
+  - id: UCBi2mrWuNuyYy4gbM6fU18Q
+    name: ABC News
+    category: news
+
+  - id: UCMtFAi84ehTSYSE9XoHefig
+    name: The Late Show (Colbert)
+    category: entertainment
+
+  - id: UCa6vGFO9ty8v5KZJXQxdhaw
+    name: Jimmy Kimmel Live
+    category: entertainment
+
+  # ── Gaming / Entertainment — high engagement ──────────────────────
+  - id: UCX6OQ3DkcsbYNE6H8uQQuVA
+    name: MrBeast
+    category: entertainment
+
+  - id: UCam8T03EOFBsNdR2thrTztQ
+    name: Cr1TiKaL (penguinz0)
+    category: gaming
+
+  - id: UC-lHJZR3Gqxm24_Vd_AJ5Yw
+    name: PewDiePie
+    category: gaming
+
+  - id: UCpB959t8iPrxQWj7G6n0ctQ
+    name: Markiplier
+    category: gaming
+
+  - id: UCY1kMZp36IQSyNx_9h4mpCg
+    name: Mark Rober
+    category: education
+
+  - id: UCHnyfMqiRRG1u-2MsSQLbXA
+    name: Veritasium
+    category: education
+
+  - id: UCXuqSBlHAE6Xw-yeJA0Tunw
+    name: Linus Tech Tips
+    category: tech
+
+  - id: UCRijo3ddMTht_IHyNSNXpNQ
+    name: Dude Perfect
+    category: entertainment
+
+  # ── Sports — tribal / heated discussions ──────────────────────────
+  - id: UCiWLfSweyRNmLpgEHekhoAg
+    name: ESPN
+    category: sports
+
+  - id: UCnUYZLuoy1rq1aVMwx4aTzw
+    name: NBA
+    category: sports
+
+# ── Ingestion settings ────────────────────────────────────────────────
+settings:
+  max_videos_per_channel: 50     # Up from 15 — far more data per channel
+  max_comments_per_video: 500    # Up from 200 (5 API pages of 100 each)
+  target_total: 130000           # ~130k raw → ~91k clean (70% pass rate) → ~100k total with existing 9,580

@@ -1,0 +1,17 @@
+{
+  "model_name": "roberta-base",
+  "label_cols": [
+    "label_toxicity",
+    "label_hate_racism",
+    "label_harassment"
+  ],
+  "max_length": 128,
+  "best_avg_f1": 0.5781,
+  "quick_test": true,
+  "brier_toxicity": 0.04568375647068024,
+  "brier_hate_racism": 0.22646364569664001,
+  "brier_harassment": 0.19959355890750885,
+  "ece_toxicity": 0.0587,
+  "ece_hate_racism": 0.2624,
+  "ece_harassment": 0.2187
+}

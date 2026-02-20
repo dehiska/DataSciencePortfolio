@@ -1,0 +1,31 @@
+# Core Data Science
+pandas>=2.1.0
+numpy>=1.26.0
+scikit-learn>=1.3.0
+
+# YouTube API
+google-api-python-client>=2.100.0
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.2.0
+python-dotenv>=1.0.0
+
+# NLP / Preprocessing
+langdetect>=1.0.9
+nltk>=3.8.1
+
+# Dashboard
+streamlit>=1.28.0
+plotly>=5.17.0
+
+# Data storage utils
+pyarrow>=13.0.0
+
+# Development
+pytest>=7.4.0
+pyyaml>=6.0.1
+
+# Note: PyTorch + HuggingFace added in Phase 2 (model training)
+# torch, transformers, datasets, accelerate, shap
+# Note: GCP cloud libs added in Phase 3 (deployment)
+# google-cloud-storage, google-cloud-bigquery, google-cloud-aiplatform
