@@ -8,7 +8,7 @@ set -euo pipefail
 
 # ── Config (edit if needed) ──────────────────────────────────────────────────
 PROJECT_ID="youtube-toxicity-detector"
-REGION="us-central1"
+REGION="northamerica-northeast1"
 BUCKET="yt-toxicity-data-youtube-toxicity-detector"
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ machine-type=n1-standard-4,\
 accelerator-type=NVIDIA_TESLA_T4,\
 accelerator-count=1,\
 replica-count=1,\
-executor-image-uri=us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.2-0:latest,\
+executor-image-uri=us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.2-1.py310:latest,\
 python-module=trainer.train" \
   --args="--data-uri=${DATA_URI}" \
   --args="--output-dir=${OUTPUT_DIR}" \
