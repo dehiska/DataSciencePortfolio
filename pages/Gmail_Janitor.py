@@ -1,16 +1,40 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-st.title("🧹 Gmail Janitor")
-st.caption("AI-powered email cleanup using Gemini 2.5 Flash with active learning and risk-aware deletion policies.")
+# ── Configuration ──────────────────────────────────────────────────────────────
+# Set this to the deployed Gmail Janitor app URL once running on your server.
+# e.g. "https://denissoulimaportfolio.com/gmail-janitor"
+# Leave empty to show deployment instructions instead.
+GMAIL_JANITOR_APP_URL = ""
 
+# ── Page header ────────────────────────────────────────────────────────────────
+st.title("🧹 Denis Soulima's Gmail Janitor")
+st.caption("AI-powered email cleanup · Gemini 2.5 Flash · Active Learning · Risk-aware deletion")
+
+st.sidebar.markdown("### Gmail Janitor")
 section = st.sidebar.radio(
     "Navigation",
-    ["📘 Overview", "⚙️ Architecture", "🤖 AI Pipeline", "🛡️ Safety Design", "🛠️ Tech Stack"],
+    [
+        "📘 Overview",
+        "⚙️ Architecture",
+        "🤖 AI Pipeline",
+        "🛡️ Safety Design",
+        "🛠️ Tech Stack",
+        "▶️ Play with it",
+        "🔒 Privacy & Terms",
+    ],
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
 if section == "📘 Overview":
     st.header("📘 Project Overview")
+
+    st.info(
+        "**Denis Soulima's Gmail Janitor** is a portfolio project that demonstrates "
+        "AI-powered email triage using Google's Gemini 2.5 Flash LLM. "
+        "It is built and maintained by Denis Soulima solely for educational and "
+        "portfolio demonstration purposes."
+    )
 
     st.markdown("""
 Gmail Janitor is an AI-powered email cleanup assistant that uses **Gemini 2.5 Flash**
@@ -21,22 +45,27 @@ The core problem: most people have thousands of unread, low-value emails (newsle
 job alerts, marketing) drowning out important messages. Traditional filters are brittle
 and rule-based. Gmail Janitor uses an LLM to understand email *intent* and applies
 risk-aware deletion policies with a safety-first approach.
+
+**⚠️ Warning:** This tool does interact with your real Gmail account and can move emails
+to Trash. While the default policy never hard-deletes (emails go to a review label first),
+use it on your own inbox at your own risk. The developer assumes no responsibility for
+any emails moved or deleted.
 """)
 
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Lines of Code",     "~2,800")
-    col2.metric("AI Model",          "Gemini 2.5 Flash")
-    col3.metric("Email Categories",  "8")
+    col1.metric("Lines of Code",       "~2,800")
+    col2.metric("AI Model",            "Gemini 2.5 Flash")
+    col3.metric("Email Categories",    "8")
     col4.metric("Safety: Hard Delete", "Never (default)")
 
     st.subheader("Key Features")
     features = {
-        "🤖 LLM Classification":   "Gemini scores each email on importance, junk probability, and risk-of-wrong-deletion. Outputs structured JSON via Pydantic.",
-        "⚡ Pre-filtering":        "Rule-based fast-path (no Gemini API call) for whitelisted senders, known spam domains, and explicit user rules.",
-        "🧠 Active Learning":      "For uncertain emails, Gemini generates targeted follow-up questions. User answers update sender-level preferences and thresholds.",
+        "🤖 LLM Classification":      "Gemini scores each email on importance, junk probability, and risk-of-wrong-deletion. Outputs structured JSON via Pydantic.",
+        "⚡ Pre-filtering":            "Rule-based fast-path (no Gemini API call) for whitelisted senders, known spam domains, and explicit user rules.",
+        "🧠 Active Learning":          "For uncertain emails, Gemini generates targeted follow-up questions. User answers update sender-level preferences and thresholds.",
         "🔄 Natural Language Planner": "Users can type commands like 'Trash all Red Cross marketing emails older than 30 days' — parsed by Gemini into structured action plans.",
-        "↩️ Full Undo Support":    "Every action is logged to `actions_log.json`. Users can undo the last cleanup run with one click.",
-        "🔒 OAuth + Privacy":      "Google OAuth 2.0 — never stores email content, only metadata and classification scores.",
+        "↩️ Full Undo Support":        "Every action is logged to `actions_log.json`. Users can undo the last cleanup run with one click.",
+        "🔒 OAuth + Privacy":          "Google OAuth 2.0 — never stores email content, only metadata and classification scores.",
     }
     for title, desc in features.items():
         with st.expander(title):
@@ -51,6 +80,17 @@ risk-aware deletion policies with a safety-first approach.
 | **Rules & Preferences** | Edit whitelist/blacklist domains, per-category rules |
 | **Audit / Undo** | View full action history, undo last run |
 """)
+
+    st.divider()
+    col_pp, col_tos = st.columns(2)
+    with col_pp:
+        if st.button("🔒 Privacy Policy", use_container_width=True):
+            st.session_state["_gmail_nav"] = "🔒 Privacy & Terms"
+            st.rerun()
+    with col_tos:
+        if st.button("📄 Terms of Service", use_container_width=True):
+            st.session_state["_gmail_nav"] = "🔒 Privacy & Terms"
+            st.rerun()
 
 # ══════════════════════════════════════════════════════════════════════════════
 elif section == "⚙️ Architecture":
@@ -230,10 +270,10 @@ elif section == "🛠️ Tech Stack":
 
     st.subheader("Project Stats")
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("main.py",           "1,547 lines")
-    c2.metric("app.py (UI)",       "1,264 lines")
-    c3.metric("planner_service.py","151 lines")
-    c4.metric("Total",             "~2,962 lines")
+    c1.metric("main.py",            "1,547 lines")
+    c2.metric("app.py (UI)",        "1,264 lines")
+    c3.metric("planner_service.py", "151 lines")
+    c4.metric("Total",              "~2,962 lines")
 
     st.subheader("Key Design Decisions")
     st.markdown("""
@@ -242,4 +282,104 @@ elif section == "🛠️ Tech Stack":
 - **Label-based actions**: More reversible than hard delete, familiar to Gmail users
 - **Per-account data isolation**: Preferences/stats stored in separate directories per Google account
 - **Prompt-in-YAML**: Decouples prompt engineering from application code — easier to iterate
+""")
+
+# ══════════════════════════════════════════════════════════════════════════════
+elif section == "▶️ Play with it":
+    st.header("▶️ Play with Denis Soulima's Gmail Janitor")
+
+    st.warning(
+        "⚠️ **This tool connects to your real Gmail account.** "
+        "Emails may be moved to Trash or a review label. "
+        "Use the **Audit / Undo** tab inside the app to reverse any actions. "
+        "By proceeding you acknowledge the [Privacy Policy & Terms](#privacy--terms) below."
+    )
+
+    if GMAIL_JANITOR_APP_URL:
+        st.success(f"App is live at: {GMAIL_JANITOR_APP_URL}")
+        st.link_button("Open Gmail Janitor in full screen ↗", url=GMAIL_JANITOR_APP_URL)
+        st.divider()
+        components.iframe(GMAIL_JANITOR_APP_URL, height=800, scrolling=True)
+    else:
+        st.info(
+            "The live app is not yet configured. "
+            "To enable it, deploy the Gmail Janitor backend on your server and set "
+            "`GMAIL_JANITOR_APP_URL` at the top of this file."
+        )
+        st.subheader("What the app looks like")
+        st.markdown("""
+The live Gmail Janitor UI has four tabs:
+
+| Tab | What you can do |
+|-----|----------------|
+| **Run Cleanup** | Choose how many emails to scan, set junk/importance thresholds, preview results before executing |
+| **Quarantine** | Review emails the AI wasn't sure about — approve or reject each one |
+| **Rules & Preferences** | Add sender whitelists/blacklists, per-category overrides |
+| **Audit / Undo** | Full history of every action taken — one-click undo for the last run |
+
+Once authenticated with Google OAuth, the app fetches your emails, runs them through
+Gemini 2.5 Flash, and presents you with a prioritised action plan before touching anything.
+""")
+
+# ══════════════════════════════════════════════════════════════════════════════
+elif section == "🔒 Privacy & Terms":
+    st.header("🔒 Privacy Policy & Terms of Service")
+    st.caption("Last updated: February 2026 · Denis Soulima's Gmail Janitor")
+
+    st.subheader("Privacy Policy")
+    st.markdown("""
+**TL;DR — We do not want your data. We do not store, sell, or share it.**
+
+1. **No data collection.** Denis Soulima's Gmail Janitor does not collect, store, or transmit
+   any email content, personal information, or usage data to any server controlled by the
+   developer. All processing occurs locally within your browser session and on your own
+   Google account.
+
+2. **Google OAuth scope.** The app requests OAuth access to your Gmail account solely to
+   read, label, and move emails within that account. The access token is stored locally
+   in the `tokens/` directory on the machine running the app and is never sent to the
+   developer or any third party.
+
+3. **Email content.** Email subjects, snippets, and metadata are sent to **Google Gemini
+   2.5 Flash** (via the Google Vertex AI API) for classification. This is subject to
+   [Google's Privacy Policy](https://policies.google.com/privacy). No email content is
+   stored by this application.
+
+4. **No analytics.** No cookies, tracking pixels, or analytics are used.
+
+5. **Portfolio purpose only.** This project exists to demonstrate software engineering
+   skills. It is not a commercial product. Use it at your own discretion.
+
+6. **Data deletion.** To revoke access, go to [Google Account Permissions](https://myaccount.google.com/permissions)
+   and remove "Denis Soulima's Gmail Janitor". Delete the local `tokens/` directory to
+   remove any cached credentials from the machine running the app.
+""")
+
+    st.divider()
+    st.subheader("Terms of Service")
+    st.markdown("""
+By using Denis Soulima's Gmail Janitor you agree to the following:
+
+1. **Portfolio use only.** This application is provided as a portfolio demonstration project
+   by Denis Soulima. It is not intended for production or commercial use.
+
+2. **Use at your own risk.** The application interacts with your real Gmail inbox and may
+   move emails to Trash or apply labels. While the default configuration does not
+   permanently delete emails, the developer makes **no warranty** and accepts **no
+   liability** for any emails moved, deleted, or otherwise affected by use of this tool.
+
+3. **No warranty.** The software is provided "as is", without warranty of any kind,
+   express or implied, including but not limited to the warranties of merchantability,
+   fitness for a particular purpose, and non-infringement.
+
+4. **Indemnification.** You agree to indemnify and hold harmless Denis Soulima from any
+   claim, damage, or expense arising from your use of the application.
+
+5. **Google's Terms.** Your use of Gmail through this application is also subject to
+   [Google's Terms of Service](https://policies.google.com/terms).
+
+6. **Changes.** These terms may be updated at any time. Continued use constitutes acceptance.
+
+---
+*Questions? Contact Denis Soulima via [denissoulimaportfolio.com](https://denissoulimaportfolio.com)*
 """)
