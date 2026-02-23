@@ -29,27 +29,38 @@ section = st.sidebar.radio(
 if section == "📘 Overview":
     st.header("📘 Project Overview")
 
+    # Visible legal links — required for Google OAuth verification
+    st.markdown(
+        "**Legal:** "
+        "[Privacy Policy](https://denissoulimaportfolio.com/Privacy_Policy) · "
+        "[Terms of Service](https://denissoulimaportfolio.com/Terms_of_Service)"
+    )
+    st.divider()
+
     st.info(
-        "**Denis Soulima's Gmail Janitor** is a portfolio project that demonstrates "
-        "AI-powered email triage using Google's Gemini 2.5 Flash LLM. "
-        "It is built and maintained by Denis Soulima solely for educational and "
-        "portfolio demonstration purposes."
+        "**Denis Soulima's Gmail Janitor** is a portfolio project built by Denis Soulima "
+        "that demonstrates AI-powered email triage using Google's Gemini 2.5 Flash LLM. "
+        "Its purpose is to intelligently classify and clean Gmail inboxes using large language "
+        "models with risk-aware deletion policies. Built for educational and portfolio "
+        "demonstration purposes only."
     )
 
     st.markdown("""
-Gmail Janitor is an AI-powered email cleanup assistant that uses **Gemini 2.5 Flash**
-(Google Vertex AI) to intelligently classify, triage, and clean Gmail inboxes — without
-ever permanently deleting an email you might need.
+**Denis Soulima's Gmail Janitor** is an AI-powered email cleanup assistant that uses
+**Gemini 2.5 Flash** (Google Vertex AI) to intelligently classify, triage, and clean
+Gmail inboxes — without ever permanently deleting an email you might need.
+
+**Purpose:** Help users reclaim their inbox by using an LLM to understand email *intent*
+and apply configurable risk-aware deletion policies, rather than brittle keyword rules.
 
 The core problem: most people have thousands of unread, low-value emails (newsletters,
-job alerts, marketing) drowning out important messages. Traditional filters are brittle
-and rule-based. Gmail Janitor uses an LLM to understand email *intent* and applies
-risk-aware deletion policies with a safety-first approach.
+job alerts, marketing) drowning out important messages. Traditional filters are
+rule-based and inflexible. This app uses AI to reason about each email contextually.
 
-**⚠️ Warning:** This tool does interact with your real Gmail account and can move emails
+**⚠️ Warning:** This tool interacts with your real Gmail account and can move emails
 to Trash. While the default policy never hard-deletes (emails go to a review label first),
-use it on your own inbox at your own risk. The developer assumes no responsibility for
-any emails moved or deleted.
+use it at your own risk. The developer assumes no responsibility for any emails moved or
+deleted. See the [Terms of Service](https://denissoulimaportfolio.com/Terms_of_Service).
 """)
 
     col1, col2, col3, col4 = st.columns(4)
@@ -81,16 +92,6 @@ any emails moved or deleted.
 | **Audit / Undo** | View full action history, undo last run |
 """)
 
-    st.divider()
-    col_pp, col_tos = st.columns(2)
-    with col_pp:
-        if st.button("🔒 Privacy Policy", use_container_width=True):
-            st.session_state["_gmail_nav"] = "🔒 Privacy & Terms"
-            st.rerun()
-    with col_tos:
-        if st.button("📄 Terms of Service", use_container_width=True):
-            st.session_state["_gmail_nav"] = "🔒 Privacy & Terms"
-            st.rerun()
 
 # ══════════════════════════════════════════════════════════════════════════════
 elif section == "⚙️ Architecture":
