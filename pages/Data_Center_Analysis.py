@@ -35,7 +35,7 @@ section = st.sidebar.radio(
     ["🌍 Global Overview",
      "🌱 Renewable Energy",
      "📊 ML Model",
-     "🇺🇸 US Deep Dive",
+     "🔎 US Deep Dive",
      "📈 Forecasts & Insights"],
 )
 
@@ -123,8 +123,13 @@ if section == "🌍 Global Overview":
         color='renewable_pct', color_continuous_scale='RdYlGn', range_color=[0, 100],
         labels={'dc_count': 'Data Centers', 'country': '', 'renewable_pct': 'Renewable %'},
         title=f'Top {top_n} Countries — Color = Renewable Energy %', height=max(400, top_n * 22),
+        text='country',
     )
-    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
+    fig.update_traces(textposition='inside', insidetextanchor='start', textfont=dict(size=11, color='white'))
+    fig.update_layout(
+        yaxis={'categoryorder': 'total ascending', 'showticklabels': False},
+        margin=dict(l=20),
+    )
     st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("World Maps")
@@ -210,8 +215,10 @@ elif section == "🌱 Renewable Energy":
     )
     fig.add_vline(x=med_r, line_dash='dash', line_color='grey', opacity=0.5)
     fig.add_hline(y=med_g, line_dash='dash', line_color='grey', opacity=0.5)
-    notable = ['United States', 'Germany', 'China', 'Sweden', 'India', 'Norway', 'Singapore']
-    for _, row in quad_df[quad_df['country'].isin(notable)].iterrows():
+    india_dc = quad_df.loc[quad_df['country'] == 'India', 'dc_count']
+    india_threshold = india_dc.iloc[0] if len(india_dc) > 0 else 0
+    bigger_than_india = quad_df[quad_df['dc_count'] > india_threshold].nlargest(5, 'dc_count')
+    for _, row in bigger_than_india.iterrows():
         fig.add_annotation(x=row['renewable_pct'], y=row['growth_pct'],
                            text=row['country'], showarrow=False, font=dict(size=8), yshift=10)
     st.plotly_chart(fig, use_container_width=True)
@@ -307,7 +314,7 @@ elif section == "📊 ML Model":
 # ══════════════════════════════════════════════════════════════════════════════
 # 🇺🇸 US DEEP DIVE
 # ══════════════════════════════════════════════════════════════════════════════
-elif section == "🇺🇸 US Deep Dive":
+elif section == "🔎 US Deep Dive":
     st.header("🇺🇸 US Facility-Level Deep Dive")
     st.caption(
         f"Source: ArcGIS / ft.maps — {len(us):,} active facilities "
@@ -455,7 +462,7 @@ elif section == "🇺🇸 US Deep Dive":
         ps = us['Power source'].dropna().value_counts()
         if len(ps):
             fig2 = px.pie(values=ps.values, names=ps.index,
-                          title=f'Power Source (known for {len(ps.sum())}/{len(us)} facilities)',
+                          title=f'Power Source (known for {int(ps.sum())}/{len(us)} facilities)',
                           hole=0.45, color_discrete_sequence=px.colors.qualitative.Set2)
             st.plotly_chart(fig2, use_container_width=True)
         st.warning(

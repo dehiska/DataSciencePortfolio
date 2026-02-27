@@ -47,9 +47,28 @@ if uploaded is None:
     st.info("👆 Upload a CSV, Excel, Parquet, or JSON file using the sidebar to get started.")
     st.stop()
 
-df = load_data(uploaded, sep=csv_sep)
+try:
+    df = load_data(uploaded, sep=csv_sep)
+except Exception as e:
+    err = str(e)
+    if "codec" in err.lower() or "utf" in err.lower() or "decode" in err.lower():
+        st.error(f"**Encoding error:** This file has unsupported characters. Try saving it as UTF-8 first.\n\n_Details: {err}_")
+    elif "empty" in err.lower() or "no columns" in err.lower():
+        st.error(f"**Empty file:** The uploaded file appears to have no data. Please upload a different file.\n\n_Details: {err}_")
+    elif "separator" in err.lower() or "sep" in err.lower() or "tokeniz" in err.lower():
+        st.error(f"**Parsing error:** The CSV separator may be wrong. Try changing the separator in the sidebar (e.g., `;` or `\\t`).\n\n_Details: {err}_")
+    elif "memory" in err.lower() or "size" in err.lower():
+        st.error(f"**File too large:** This file is too large to process in the browser. Please try a smaller sample (< 100 MB).\n\n_Details: {err}_")
+    else:
+        st.error(f"**Could not read the file.** Please try a different file.\n\n_Details: {err}_")
+    st.stop()
+
 if df is None:
-    st.error("Could not read the file. Check format and try again.")
+    st.error("**Unsupported file format.** Please upload a CSV, Excel, Parquet, or JSON file.")
+    st.stop()
+
+if df.empty:
+    st.error("**The uploaded file has no rows.** Please upload a file with actual data.")
     st.stop()
 
 with st.sidebar:
@@ -183,18 +202,24 @@ with tab5:
     if num_cols:
         sel_scale = st.selectbox("Select column", num_cols, key="scale_col")
         raw = df[sel_scale].dropna().values.reshape(-1, 1)
-        scaled_vals = {
-            "Original":                 df[sel_scale].dropna().values,
-            "StandardScaler (z-score)": StandardScaler().fit_transform(raw).flatten(),
-            "MinMaxScaler [0, 1]":       MinMaxScaler().fit_transform(raw).flatten(),
-            "RobustScaler (IQR-based)":  RobustScaler().fit_transform(raw).flatten(),
-        }
-        fig = go.Figure()
-        for (name, vals), color in zip(scaled_vals.items(), ["#636EFA","#EF553B","#00CC96","#AB63FA"]):
-            fig.add_trace(go.Histogram(x=vals, name=name, opacity=0.65, nbinsx=50, marker_color=color))
-        fig.update_layout(barmode="overlay", title="Scaler Comparison", xaxis_title="Value",
-                          legend=dict(orientation="h", y=1.1))
-        st.plotly_chart(fig, use_container_width=True)
+        if len(raw) == 0:
+            st.warning(f"**Column `{sel_scale}` has no non-null values.** Please select a different column or upload a file with more data.")
+        else:
+            try:
+                scaled_vals = {
+                    "Original":                 df[sel_scale].dropna().values,
+                    "StandardScaler (z-score)": StandardScaler().fit_transform(raw).flatten(),
+                    "MinMaxScaler [0, 1]":       MinMaxScaler().fit_transform(raw).flatten(),
+                    "RobustScaler (IQR-based)":  RobustScaler().fit_transform(raw).flatten(),
+                }
+                fig = go.Figure()
+                for (name, vals), color in zip(scaled_vals.items(), ["#636EFA","#EF553B","#00CC96","#AB63FA"]):
+                    fig.add_trace(go.Histogram(x=vals, name=name, opacity=0.65, nbinsx=50, marker_color=color))
+                fig.update_layout(barmode="overlay", title="Scaler Comparison", xaxis_title="Value",
+                                  legend=dict(orientation="h", y=1.1))
+                st.plotly_chart(fig, use_container_width=True)
+            except Exception as e:
+                st.warning(f"**Could not compute scaling for `{sel_scale}`:** {e}\n\nThis can happen with columns that have constant values or only a single unique value. Please try a different column.")
         skew = df[sel_scale].skew()
         Q1, Q3 = df[sel_scale].quantile(0.25), df[sel_scale].quantile(0.75)
         n_out = int(((df[sel_scale] < Q1-1.5*(Q3-Q1)) | (df[sel_scale] > Q3+1.5*(Q3-Q1))).sum())

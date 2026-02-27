@@ -9,6 +9,15 @@ st.title('Seattle Housing Prices Map')
 # Add a brief description
 st.write("An interactive map of Seattle housing prices, created using open-source geospatial tools.")
 
+# Loading banner — shown while data loads, cleared automatically when map is ready
+_loading = st.empty()
+_loading.markdown(
+    """<div style="text-align:center;padding:18px 0;background:#e8f4fd;border-radius:10px;margin-bottom:16px;">
+    <span style="font-size:1.2rem;">⏳ <strong>Please wait — the map is loading…</strong></span>
+    </div>""",
+    unsafe_allow_html=True,
+)
+
 # Your data URL
 housing_url = 'https://raw.githubusercontent.com/iantonios/dsc205/refs/heads/main/kc_house_data.csv'
 
@@ -37,7 +46,8 @@ for index, row in df.iterrows():
     
     c.add_to(m)
 
-# Display the map in Streamlit
+# Display the map in Streamlit (clear loading banner first)
+_loading.empty()
 folium_static(m)
 
 # Add a text-based legend below the map

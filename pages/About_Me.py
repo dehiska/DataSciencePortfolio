@@ -14,11 +14,11 @@ def show():
         Driven by a passion for uncovering insights from complex data, I am a Master's student in Data Science at the University of Connecticut. With a background in Computer Science and professional experience at companies like IBM, I bring a unique blend of software engineering discipline and advanced statistical knowledge to every project. I thrive on solving real-world challenges, from detecting financial fraud to developing robust data pipelines.
         """)
         # Download Resume Button
-        with open("assets/resume.docx", "rb") as file:
+        with open("assets/resume2026.docx", "rb") as file:
              st.download_button(
                  label="📄 Download My Resume",
                  data=file,
-                 file_name="DenisSoulima_Resume.docx",
+                 file_name="DenisSoulima_Resume2026.docx",
                  mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
              )
 

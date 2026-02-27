@@ -20,7 +20,7 @@ section = st.sidebar.radio(
         "🤖 AI Pipeline",
         "🛡️ Safety Design",
         "🛠️ Tech Stack",
-        "▶️ Play with it",
+        "🎬 Watch a Tutorial",
         "🔒 Privacy & Terms",
     ],
 )
@@ -286,41 +286,31 @@ elif section == "🛠️ Tech Stack":
 """)
 
 # ══════════════════════════════════════════════════════════════════════════════
-elif section == "▶️ Play with it":
-    st.header("▶️ Play with Denis Soulima's Gmail Janitor")
+elif section == "🎬 Watch a Tutorial":
+    st.header("🎬 Watch a Tutorial on How to Use Denis Soulima's Gmail Janitor")
 
-    st.warning(
-        "⚠️ **This tool connects to your real Gmail account.** "
-        "Emails may be moved to Trash or a review label. "
-        "Use the **Audit / Undo** tab inside the app to reverse any actions. "
-        "By proceeding you acknowledge the [Privacy Policy & Terms](#privacy--terms) below."
+    st.info(
+        "**The Gmail Janitor app is currently being reviewed and published by Google.** "
+        "While we wait for Google's OAuth verification to complete, please enjoy this "
+        "demo video showing exactly how the app looks and works!"
     )
+
+    st.divider()
+
+    try:
+        with open("assets/Gmail Janitor Tutorial.mp4", "rb") as video_file:
+            video_bytes = video_file.read()
+        st.video(video_bytes)
+    except FileNotFoundError:
+        st.warning("Demo video not found. Please ensure `assets/Gmail Janitor Tutorial.mp4` exists.")
+
+    st.divider()
 
     if GMAIL_JANITOR_APP_URL:
         st.success(f"App is live at: {GMAIL_JANITOR_APP_URL}")
         st.link_button("Open Gmail Janitor in full screen ↗", url=GMAIL_JANITOR_APP_URL)
         st.divider()
         components.iframe(GMAIL_JANITOR_APP_URL, height=800, scrolling=True)
-    else:
-        st.info(
-            "The live app is not yet configured. "
-            "To enable it, deploy the Gmail Janitor backend on your server and set "
-            "`GMAIL_JANITOR_APP_URL` at the top of this file."
-        )
-        st.subheader("What the app looks like")
-        st.markdown("""
-The live Gmail Janitor UI has four tabs:
-
-| Tab | What you can do |
-|-----|----------------|
-| **Run Cleanup** | Choose how many emails to scan, set junk/importance thresholds, preview results before executing |
-| **Quarantine** | Review emails the AI wasn't sure about — approve or reject each one |
-| **Rules & Preferences** | Add sender whitelists/blacklists, per-category overrides |
-| **Audit / Undo** | Full history of every action taken — one-click undo for the last run |
-
-Once authenticated with Google OAuth, the app fetches your emails, runs them through
-Gemini 2.5 Flash, and presents you with a prioritised action plan before touching anything.
-""")
 
 # ══════════════════════════════════════════════════════════════════════════════
 elif section == "🔒 Privacy & Terms":

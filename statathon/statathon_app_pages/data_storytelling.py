@@ -3,6 +3,7 @@ import pandas as pd
 # Assuming FE_helper is needed for load_and_transform
 from statathon.Final_Code.FE_helper import add_features, fit_regular_transformer, transform_regular_set
 
+@st.cache_data
 def load_and_transform_for_story():
     """
     Loads data and applies feature engineering/transformation,
@@ -32,12 +33,18 @@ def show():
 
     # --- Section: Model Preparation & Best Model ---
     st.subheader("⚙️ Model Preparation & Best Performer")
-    X_transformed_shape = load_and_transform_for_story().shape # Load just to get shape
+
+    try:
+        with st.spinner("Loading transformed dataset…"):
+            X_transformed_shape = load_and_transform_for_story().shape
+        shape_text = f"**{X_transformed_shape}**"
+    except Exception as e:
+        shape_text = "*(shape unavailable)*"
 
     st.markdown(f"""
     Following feature engineering, our data was meticulously prepared for machine learning.
     This involved **one-hot encoding categorical variables and scaling numerical features**,
-    resulting in a transformed dataset with a shape of **{X_transformed_shape}**. This clean,
+    resulting in a transformed dataset with a shape of {shape_text}. This clean,
     transformed data was then fed into various sophisticated models, including LightGBM, XGBoost,
     CatBoost, Histogram-based Gradient Boosting, and Random Forest, alongside a Logistic Regression baseline.
 
