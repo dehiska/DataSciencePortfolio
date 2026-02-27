@@ -67,9 +67,10 @@ def parse_args():
 
 def load_csv(uri: str) -> pd.DataFrame:
     if uri.startswith("gs://"):
-        import gcsfs
-        with gcsfs.GCSFileSystem().open(uri) as f:
-            return pd.read_csv(f)
+        local = "/tmp/training_data.csv"
+        log.info("Downloading %s → %s via gsutil", uri, local)
+        subprocess.run(["gsutil", "cp", uri, local], check=True)
+        return pd.read_csv(local)
     return pd.read_csv(uri)
 
 
