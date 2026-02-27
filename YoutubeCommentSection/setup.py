@@ -8,6 +8,6 @@ setup(
         # torch, transformers, sklearn, pandas, numpy are pre-installed in the
         # pytorch-gpu.2-1.py310 Vertex AI container — do NOT list them here or
         # the old pip (20.1) inside the container will fail to resolve them.
-        "gcsfs>=2024.1",   # needed to read gs:// URIs
+        "gcsfs",   # needed to read gs:// URIs (no version pin — pip 20.1 in container caps at 2023.x)
     ],
 )
