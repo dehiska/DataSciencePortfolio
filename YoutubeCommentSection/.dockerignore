@@ -1,0 +1,12 @@
+data/
+notebooks/
+streamlit_app/
+vertex_ai/
+config/
+models/
+*.pyc
+__pycache__/
+.env
+*.jsonl
+*.parquet
+*.csv

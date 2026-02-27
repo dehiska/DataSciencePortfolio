@@ -1,15 +1,17 @@
 #!/bin/bash
-# Submit a Vertex AI custom training job (CPU-only, no GPU quota required).
-# Run from the YoutubeCommentSection/ directory after cloning the repo in Cloud Shell.
+# Submit a Vertex AI custom training job using a custom Docker image.
+# Bypasses runcloudml.py (Python 3.7) by setting ENTRYPOINT to python3.10.
 #
+# Run from the YoutubeCommentSection/ directory:
 #   cd YoutubeCommentSection
 #   bash vertex_ai/submit_training.sh
 set -euo pipefail
 
-# ── Config (edit if needed) ──────────────────────────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────────
 PROJECT_ID="youtube-toxicity-detector"
-REGION="northamerica-northeast1"
+REGION="us-central1"
 BUCKET="yt-toxicity-data-youtube-toxicity-detector"
+IMAGE="us-central1-docker.pkg.dev/${PROJECT_ID}/vertex-training/toxicity-trainer:latest"
 # ─────────────────────────────────────────────────────────────────────────────
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,49 +24,54 @@ cd "$ROOT"
 # ── Verify training data exists in GCS ───────────────────────────────────────
 echo "Checking training data..."
 if ! gsutil -q stat "$DATA_URI" 2>/dev/null; then
-  echo ""
-  echo "ERROR: $DATA_URI not found."
-  echo "Upload it first:"
-  echo "  1. Run notebook 03 cells 1-4 locally to generate data/processed/training_data.csv"
-  echo "  2. Upload the file via Cloud Shell menu (three-dot → Upload)"
-  echo "  3. gsutil cp training_data.csv gs://${BUCKET}/data/training_data.csv"
+  echo "ERROR: $DATA_URI not found. Upload training_data.csv first."
   exit 1
 fi
 echo "Found: $DATA_URI"
 
-# ── Build trainer package ─────────────────────────────────────────────────────
+# ── Enable Artifact Registry (idempotent) ────────────────────────────────────
 echo ""
-echo "Building trainer package..."
-pip install --quiet setuptools wheel
-python setup.py sdist --dist-dir /tmp/trainer_dist -q 2>/dev/null
-PACKAGE_PATH=$(ls /tmp/trainer_dist/toxicity*trainer-*.tar.gz | tail -1)
-echo "Package: $PACKAGE_PATH"
+echo "Enabling Artifact Registry..."
+gcloud services enable artifactregistry.googleapis.com --project="$PROJECT_ID" --quiet
 
-gsutil cp "$PACKAGE_PATH" "gs://${BUCKET}/trainer/"
-PACKAGE_URI="gs://${BUCKET}/trainer/$(basename "$PACKAGE_PATH")"
-echo "Uploaded → $PACKAGE_URI"
+# Create Docker repo if it doesn't exist yet
+gcloud artifacts repositories describe vertex-training \
+  --location=us-central1 --project="$PROJECT_ID" &>/dev/null || \
+gcloud artifacts repositories create vertex-training \
+  --repository-format=docker \
+  --location=us-central1 \
+  --project="$PROJECT_ID" \
+  --quiet
 
-# ── Submit job ────────────────────────────────────────────────────────────────
+# ── Build and push image via Cloud Build (no local Docker needed) ─────────────
+echo ""
+echo "Building Docker image with Cloud Build..."
+echo "  Image: $IMAGE"
+gcloud builds submit . \
+  --tag="$IMAGE" \
+  --project="$PROJECT_ID" \
+  --timeout=20m \
+  --quiet
+echo "Image pushed: $IMAGE"
+
+# ── Submit Vertex AI custom job ───────────────────────────────────────────────
 echo ""
 echo "Submitting Vertex AI training job: $JOB_NAME"
 echo "  Data:      $DATA_URI"
 echo "  Output:    $OUTPUT_DIR"
-echo "  Machine:   n1-standard-8 (8 vCPU, 30 GB RAM) — CPU only, no GPU quota needed"
-echo "  Model:     distilroberta-base (2x faster than roberta-base on CPU)"
-echo "  Est. cost: ~\$2-4 depending on dataset size"
-echo "  Est. time: ~4-8 hours"
+echo "  Machine:   n1-standard-8 (CPU only)"
+echo "  Model:     distilroberta-base"
+echo "  Est. cost: ~\$2-4"
 echo ""
 
 gcloud ai custom-jobs create \
   --project="$PROJECT_ID" \
   --region="$REGION" \
   --display-name="$JOB_NAME" \
-  --python-package-uris="$PACKAGE_URI" \
   --worker-pool-spec="\
 machine-type=n1-standard-8,\
 replica-count=1,\
-executor-image-uri=us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.2-1.py310:latest,\
-python-module=trainer.train" \
+executor-image-uri=${IMAGE}" \
   --args="--data-uri=${DATA_URI}" \
   --args="--output-dir=${OUTPUT_DIR}" \
   --args="--model-name=distilroberta-base" \
@@ -76,11 +83,8 @@ python-module=trainer.train" \
 
 echo ""
 echo "=== Job submitted ==="
-echo "Monitor:  https://console.cloud.google.com/vertex-ai/training/custom-jobs?project=${PROJECT_ID}"
-echo "Output:   $OUTPUT_DIR"
+echo "Monitor: https://console.cloud.google.com/vertex-ai/training/custom-jobs?project=${PROJECT_ID}"
+echo "Output:  $OUTPUT_DIR"
 echo ""
-echo "When complete, in Cloud Shell:"
-echo "  gsutil -m cp -r ${OUTPUT_DIR}* ../models/"
-echo ""
-echo "Or locally (if gcloud installed):"
-echo "  bash vertex_ai/download_model.sh ${JOB_NAME}"
+echo "When complete, download the model:"
+echo "  gsutil -m cp -r ${OUTPUT_DIR}* ~/DataSciencePortfolio/YoutubeCommentSection/models/"
