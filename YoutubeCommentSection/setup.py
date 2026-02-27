@@ -5,12 +5,9 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        "torch>=2.0",
-        "transformers>=4.40",
-        "scikit-learn>=1.3",
-        "pandas>=2.0",
-        "numpy>=1.24",
-        "gcsfs>=2024.1",
-        "nltk>=3.8",
+        # torch, transformers, sklearn, pandas, numpy are pre-installed in the
+        # pytorch-gpu.2-1.py310 Vertex AI container — do NOT list them here or
+        # the old pip (20.1) inside the container will fail to resolve them.
+        "gcsfs>=2024.1",   # needed to read gs:// URIs
     ],
 )
