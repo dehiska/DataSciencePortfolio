@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit a Vertex AI custom training job.
+# Submit a Vertex AI custom training job (CPU-only, no GPU quota required).
 # Run from the YoutubeCommentSection/ directory after cloning the repo in Cloud Shell.
 #
 #   cd YoutubeCommentSection
@@ -49,8 +49,10 @@ echo ""
 echo "Submitting Vertex AI training job: $JOB_NAME"
 echo "  Data:      $DATA_URI"
 echo "  Output:    $OUTPUT_DIR"
-echo "  Machine:   n1-standard-4 + T4 GPU"
-echo "  Est. time: ~60-90 minutes"
+echo "  Machine:   n1-standard-8 (8 vCPU, 30 GB RAM) — CPU only, no GPU quota needed"
+echo "  Model:     distilroberta-base (2x faster than roberta-base on CPU)"
+echo "  Est. cost: ~\$2-4 depending on dataset size"
+echo "  Est. time: ~4-8 hours"
 echo ""
 
 gcloud ai custom-jobs create \
@@ -59,17 +61,18 @@ gcloud ai custom-jobs create \
   --display-name="$JOB_NAME" \
   --python-package-uris="$PACKAGE_URI" \
   --worker-pool-spec="\
-machine-type=n1-standard-4,\
-accelerator-type=NVIDIA_TESLA_T4,\
-accelerator-count=1,\
+machine-type=n1-standard-8,\
 replica-count=1,\
 executor-image-uri=us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.2-1.py310:latest,\
 python-module=trainer.train" \
   --args="--data-uri=${DATA_URI}" \
   --args="--output-dir=${OUTPUT_DIR}" \
+  --args="--model-name=distilroberta-base" \
   --args="--epochs=3" \
-  --args="--batch-size=16" \
-  --args="--max-length=128"
+  --args="--batch-size=8" \
+  --args="--max-length=64" \
+  --args="--max-steps=4000" \
+  --args="--sample-frac=0.5"
 
 echo ""
 echo "=== Job submitted ==="

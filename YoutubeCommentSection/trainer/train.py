@@ -53,6 +53,10 @@ def parse_args():
     p.add_argument("--max-length",  type=int,   default=128)
     p.add_argument("--dropout",     type=float, default=0.3)
     p.add_argument("--seed",        type=int,   default=42)
+    p.add_argument("--max-steps",   type=int,   default=-1,
+                   help="Stop after this many optimizer steps (-1 = no limit)")
+    p.add_argument("--sample-frac", type=float, default=1.0,
+                   help="Fraction of training data to use (0.0-1.0, default=1.0 = all)")
     # Vertex AI sets AIP_MODEL_DIR to gs://bucket/models/<job>/ automatically
     p.add_argument("--output-dir",
                    default=os.environ.get("AIP_MODEL_DIR", "models/"))
@@ -108,10 +112,12 @@ class ToxicityClassifier(nn.Module):
 
 # ── Train / Eval loops ────────────────────────────────────────────────────────
 
-def train_epoch(model, loader, optimizer, criterion, device):
+def train_epoch(model, loader, optimizer, criterion, device, global_step=0, max_steps=-1):
     model.train()
     total = 0.0
     for i, batch in enumerate(loader):
+        if max_steps > 0 and global_step >= max_steps:
+            break
         ids  = batch["input_ids"].to(device)
         mask = batch["attention_mask"].to(device)
         lbls = batch["labels"].to(device)
@@ -121,9 +127,10 @@ def train_epoch(model, loader, optimizer, criterion, device):
         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
         total += loss.item()
+        global_step += 1
         if (i + 1) % 50 == 0:
-            log.info("  batch %d/%d  loss=%.4f", i + 1, len(loader), loss.item())
-    return total / len(loader)
+            log.info("  batch %d/%d  step %d  loss=%.4f", i + 1, len(loader), global_step, loss.item())
+    return total / max(i + 1, 1), global_step
 
 
 @torch.no_grad()
@@ -199,6 +206,10 @@ def main():
         pos = int(df[col].sum())
         log.info("  %s: %d positive (%.1f%%)", col, pos, pos / len(df) * 100)
 
+    if args.sample_frac < 1.0:
+        df = df.sample(frac=args.sample_frac, random_state=args.seed).reset_index(drop=True)
+        log.info("Sampled %.0f%% → %d rows", args.sample_frac * 100, len(df))
+
     train_df, val_df = train_test_split(
         df, test_size=0.15, random_state=args.seed, stratify=df["label_toxicity"]
     )
@@ -232,13 +243,22 @@ def main():
 
     # ── Training loop ─────────────────────────────────────────────
     best_f1        = 0.0
+    global_step    = 0
     local_model_pt = "/tmp/roberta_toxicity_best.pt"
     local_meta     = "/tmp/model_meta.json"
     local_tok_dir  = "/tmp/tokenizer"
 
+    if args.max_steps > 0:
+        log.info("Max steps: %d (will stop early if reached)", args.max_steps)
+
     for epoch in range(1, args.epochs + 1):
+        if args.max_steps > 0 and global_step >= args.max_steps:
+            log.info("Reached max_steps=%d — stopping training.", args.max_steps)
+            break
         log.info("--- Epoch %d/%d ---", epoch, args.epochs)
-        train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
+        train_loss, global_step = train_epoch(
+            model, train_loader, optimizer, criterion, device, global_step, args.max_steps
+        )
         metrics    = evaluate(model, val_loader, criterion, device)
         avg_f1     = np.mean([metrics[f"f1_{c.replace('label_', '')}"] for c in LABEL_COLS])
 
