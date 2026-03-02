@@ -1,15 +1,20 @@
-FROM us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.2-1.py310:latest
+FROM python:3.10-slim
 
 WORKDIR /app
 
-# Copy trainer code into the image
+# CPU-only PyTorch (~800 MB vs 10 GB for the GPU image — builds in ~4 min on Cloud Build)
+RUN pip install --no-cache-dir \
+    torch==2.1.0+cpu \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
+RUN pip install --no-cache-dir \
+    transformers==4.40.0 \
+    scikit-learn \
+    pandas \
+    numpy \
+    gcsfs
+
 COPY trainer/ trainer/
 COPY setup.py .
 
-# torch, transformers, sklearn, pandas, numpy are already in the base image.
-# Only install gcsfs using the correct python3.10 pip.
-RUN python3.10 -m pip install --upgrade pip && \
-    python3.10 -m pip install gcsfs
-
-# Run with python3.10 — bypasses the runcloudml.py Python 3.7 launcher entirely
-ENTRYPOINT ["python3.10", "-m", "trainer.train"]
+ENTRYPOINT ["python", "-m", "trainer.train"]
