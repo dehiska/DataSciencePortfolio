@@ -64,22 +64,33 @@ echo "  Model:     distilroberta-base"
 echo "  Est. cost: ~\$2-4"
 echo ""
 
+# Write a temporary YAML config (--worker-pool-spec doesn't support containerSpec)
+CONFIG_FILE="$(mktemp /tmp/vertex_job_XXXXXX.yaml)"
+cat > "$CONFIG_FILE" <<YAML
+workerPoolSpecs:
+  - machineSpec:
+      machineType: n1-standard-8
+    replicaCount: 1
+    containerSpec:
+      imageUri: ${IMAGE}
+      args:
+        - --data-uri=${DATA_URI}
+        - --output-dir=${OUTPUT_DIR}
+        - --model-name=distilroberta-base
+        - --epochs=3
+        - --batch-size=8
+        - --max-length=64
+        - --max-steps=4000
+        - --sample-frac=0.5
+YAML
+
 gcloud ai custom-jobs create \
   --project="$PROJECT_ID" \
   --region="$REGION" \
   --display-name="$JOB_NAME" \
-  --worker-pool-spec="\
-machine-type=n1-standard-8,\
-replica-count=1,\
-executor-image-uri=${IMAGE}" \
-  --args="--data-uri=${DATA_URI}" \
-  --args="--output-dir=${OUTPUT_DIR}" \
-  --args="--model-name=distilroberta-base" \
-  --args="--epochs=3" \
-  --args="--batch-size=8" \
-  --args="--max-length=64" \
-  --args="--max-steps=4000" \
-  --args="--sample-frac=0.5"
+  --config="$CONFIG_FILE"
+
+rm -f "$CONFIG_FILE"
 
 echo ""
 echo "=== Job submitted ==="
