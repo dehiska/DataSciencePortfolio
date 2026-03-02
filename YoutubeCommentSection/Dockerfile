@@ -8,10 +8,10 @@ RUN pip install --no-cache-dir \
     --extra-index-url https://download.pytorch.org/whl/cpu
 
 RUN pip install --no-cache-dir \
+    "numpy<2" \
     transformers==4.40.0 \
     scikit-learn \
     pandas \
-    numpy \
     gcsfs
 
 COPY trainer/ trainer/
