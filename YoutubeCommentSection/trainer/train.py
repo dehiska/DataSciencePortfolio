@@ -21,7 +21,6 @@ import json
 import logging
 import os
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -167,10 +166,17 @@ def evaluate(model, loader, criterion, device):
 
 def save_artifacts(local_model: str, local_meta: str, local_tok: str, output_dir: str):
     if output_dir.startswith("gs://"):
+        import gcsfs
+        fs = gcsfs.GCSFileSystem()
         dest = output_dir.rstrip("/")
-        subprocess.run(["gsutil", "cp", local_model, dest + "/"], check=True)
-        subprocess.run(["gsutil", "cp", local_meta,  dest + "/"], check=True)
-        subprocess.run(["gsutil", "-m", "cp", "-r", local_tok, dest + "/"], check=True)
+        for local_path in [local_model, local_meta]:
+            remote_path = dest + "/" + Path(local_path).name
+            fs.put(local_path, remote_path)
+        # upload tokenizer directory recursively
+        for f in Path(local_tok).rglob("*"):
+            if f.is_file():
+                remote_path = dest + "/tokenizer/" + f.relative_to(local_tok).as_posix()
+                fs.put(str(f), remote_path)
         log.info("Artifacts uploaded to %s", dest)
     else:
         out = Path(output_dir)
